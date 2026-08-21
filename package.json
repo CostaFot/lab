@@ -12,9 +12,13 @@
   },
   "dependencies": {
     "@astrojs/node": "^9.0.0",
-    "astro": "^5.0.0"
+    "astro": "^5.0.0",
+    "three": "^0.185.1"
   },
   "engines": {
     "node": ">=20"
+  },
+  "devDependencies": {
+    "@types/three": "^0.185.4"
   }
 }
