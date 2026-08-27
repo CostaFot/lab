@@ -45,6 +45,9 @@ export const experiment = {
   let t = 0;
   let prev: [number, number] | null = null;
   let raf = 0;
+  let last = 0;
+  const DURATION = 20; // seconds to trace the whole curve
+  const T_END = 900;
 
   const rand = (lo: number, hi: number) => lo + Math.random() * (hi - lo);
 
@@ -59,6 +62,7 @@ export const experiment = {
     }));
     t = 0;
     prev = null;
+    last = performance.now();
     const w = canvas.clientWidth;
     canvas.width = w * dpr;
     canvas.height = canvas.clientHeight * dpr;
@@ -81,10 +85,14 @@ export const experiment = {
     ];
   }
 
-  function tick() {
-    // Draw a slice of the curve each frame so it appears to be traced by hand.
+  function tick(now: number) {
+    // Advance by wall-clock time so the trace takes DURATION seconds on any
+    // refresh rate, then draw that slice as many small segments.
+    const dt = Math.min(now - last, 500) / 1000;
+    last = now;
+    const target = Math.min(T_END, t + (dt / DURATION) * T_END);
     ctx.beginPath();
-    for (let i = 0; i < 80; i++) {
+    while (t < target) {
       t += 0.01;
       const pt = point(t);
       if (prev) {
@@ -95,7 +103,7 @@ export const experiment = {
     }
     ctx.stroke();
     // Stop once every pendulum has decayed to (almost) nothing.
-    if (t < 900) raf = requestAnimationFrame(tick);
+    if (t < T_END) raf = requestAnimationFrame(tick);
   }
 
   canvas.addEventListener('click', newDrawing);
